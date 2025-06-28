@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan del MVP - Rodando a Gas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: RAG Dark & Sky Blue -->
+    <!-- Application Structure Plan: A single-page dashboard designed to present the MVP plan clearly. The structure is task-oriented, not narrative. A header allows quick navigation to key sections: 'Resumen' (a high-level dashboard with KPIs and charts), 'Backlog' (a tabbed interface to explore each EPIC's tasks), 'Cronograma' (a visual Gantt chart of the sprints), and 'Equipo y Riesgos' (team, stack, and risks). This structure is optimal for a project management tool, allowing stakeholders to quickly access the information they need, unlike the linear flow of a pitch deck. -->
+    <!-- Visualization & Content Choices: 
+        - Epic Point Distribution: Report Info: Total points per Epic -> Goal: Compare -> Viz: Donut Chart -> Interaction: Hover to see details -> Justification: Provides a quick, at-a-glance understanding of where development effort is concentrated. -> Library: Chart.js.
+        - Sprint Timeline: Report Info: 5 sprints over 10 weeks -> Goal: Show Change/Schedule -> Viz: Gantt Chart (horizontal stacked bar) -> Interaction: Tooltips on hover show sprint details -> Justification: Clearly visualizes the project timeline, dependencies, and focus for each phase, which is essential for project planning. -> Library: Chart.js.
+        - Backlog Presentation: Report Info: Detailed tasks per Epic -> Goal: Organize -> Viz: Tabbed Tables -> Interaction: Click tabs to switch between Epics -> Justification: Prevents information overload by breaking down the extensive backlog into manageable, focused sections. -> Library: Vanilla JS + Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 */
+            color: #e2e8f0; /* slate-200 */
+            overflow: hidden; /* Prevent scrolling while portal is active */
+        }
+        html {
+            scroll-padding-top: 5rem; /* Fallback for browsers without JS */
+        }
+        #access-portal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #020617;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #main-content {
+            display: none;
+        }
+        .highlight-text {
+            background: -webkit-linear-gradient(45deg, #22d3ee, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background-color: rgba(15, 23, 42, 0.5); /* bg-slate-900/50 */
+            border: 1px solid #1e293b; /* border-slate-800 */
+            border-radius: 1rem; /* rounded-xl */
+            backdrop-filter: blur(4px);
+        }
+        .tab-btn {
+            transition: all 0.3s ease-in-out;
+        }
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: #ffffff;
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+         @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .shake {
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Access Portal -->
+    <div id="access-portal">
+        <div class="text-center p-4 max-w-sm w-full">
+            <h2 class="text-3xl md:text-4xl font-black text-white leading-tight tracking-tighter">
+                Plan de Proyecto <span class="highlight-text">MVP</span>
+            </h2>
+            <p class="text-slate-400 mt-2 mb-6">Este documento es confidencial. Por favor, introduce la contraseña.</p>
+            <div class="flex flex-col gap-2">
+                <input type="password" id="password-input" class="w-full bg-slate-800 text-white placeholder-slate-500 px-4 py-3 rounded-lg border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 text-center" placeholder="••••••••">
+                <button id="submit-password" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-8 py-3 rounded-lg transition-colors">
+                    Acceder
+                </button>
+            </div>
+            <p id="error-message" class="text-rose-500 text-sm mt-4 h-5"></p>
+        </div>
+    </div>
+    
+    <div id="main-content">
+        <!-- Header / Navigation -->
+        <header class="bg-slate-900/70 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-800">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="font-bold text-xl text-white">
+                    <span class="text-sky-400">Plan del MVP</span>: Rodando a Gas
+                </h1>
+                <div class="hidden md:flex space-x-8 text-slate-300">
+                    <a href="#resumen" class="hover:text-sky-400 transition-colors">Resumen</a>
+                    <a href="#backlog" class="hover:text-sky-400 transition-colors">Backlog</a>
+                    <a href="#cronograma" class="hover:text-sky-400 transition-colors">Cronograma</a>
+                    <a href="#equipo" class="hover:text-sky-400 transition-colors">Equipo y Riesgos</a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container mx-auto p-4 md:p-8">
+            
+            <!-- Hero Section -->
+            <section class="text-center py-16 md:py-24">
+                <h2 class="text-4xl md:text-6xl font-black text-white leading-tight tracking-tighter">
+                    Plan de Producto: <span class="highlight-text">MVP</span>
+                </h2>
+                <p class="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-400">
+                    Validar el modelo de negocio de RAG en 12 semanas para un piloto de 15 transportistas, enfocados en HASE, GNV/STP y PIA.
+                </p>
+            </section>
+
+            <!-- Resumen Section -->
+            <section id="resumen" class="fade-in-section mb-16">
+                <h3 class="text-3xl font-bold text-white mb-6">Resumen del Proyecto</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- KPIs -->
+                    <div class="card p-6 lg:col-span-2">
+                        <h4 class="font-bold text-xl text-white mb-4">🎯 Criterios de Éxito</h4>
+                        <ul class="space-y-3 text-slate-300">
+                            <li class="flex items-start"><span class="text-sky-400 mt-1 mr-3">💼</span><div><strong class="text-white">KPI de Negocio:</strong> Financiar a 15 transportistas con una tasa de impago &lt; 10%.</div></li>
+                            <li class="flex items-start"><span class="text-sky-400 mt-1 mr-3">💰</span><div><strong class="text-white">KPI Financiero:</strong> Validar que la flexibilidad no impacta negativamente la TIR del modelo.</div></li>
+                            <li class="flex items-start"><span class="text-sky-400 mt-1 mr-3">🔌</span><div><strong class="text-white">KPI Técnico:</strong> Validar la viabilidad de las integraciones con GNV y STP.</div></li>
+                        </ul>
+                    </div>
+                    <!-- Esfuerzo Total -->
+                    <div class="card p-6 text-center flex flex-col justify-center">
+                        <h4 class="font-bold text-lg text-white">Esfuerzo Total</h4>
+                        <p class="text-6xl font-black highlight-text my-2">184</p>
+                        <p class="text-slate-400">Puntos de Historia</p>
+                    </div>
+                    <!-- Duración -->
+                    <div class="card p-6 text-center flex flex-col justify-center">
+                        <h4 class="font-bold text-lg text-white">Duración del Proyecto</h4>
+                        <p class="text-6xl font-black highlight-text my-2">12</p>
+                        <p class="text-slate-400">Semanas</p>
+                    </div>
+                    <!-- Distribución de Puntos -->
+                    <div class="card p-6 lg:col-span-4">
+                         <h4 class="font-bold text-xl text-white mb-4 text-center">Distribución de Puntos por Épica</h4>
+                        <div class="h-64 md:h-80"><canvas id="pointsChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backlog Section -->
+            <section id="backlog" class="fade-in-section mb-16">
+                <h3 class="text-3xl font-bold text-white mb-6">📋 Backlog Detallado del Producto</h3>
+                <div class="card p-2 md:p-4">
+                    <!-- Tabs -->
+                    <div class="flex flex-wrap border-b border-slate-800" id="tab-buttons">
+                        <button class="tab-btn active text-sm md:text-base py-3 px-4 font-semibold" data-tab="epic1">EPIC 1: Fundación (32 Pts)</button>
+                        <button class="tab-btn text-sm md:text-base py-3 px-4 font-semibold" data-tab="epic2">EPIC 2: HASE (32 Pts)</button>
+                        <button class="tab-btn text-sm md:text-base py-3 px-4 font-semibold" data-tab="epic3">EPIC 3: Pagos (80 Pts)</button>
+                        <button class="tab-btn text-sm md:text-base py-3 px-4 font-semibold" data-tab="epic4">EPIC 4: PIA (40 Pts)</button>
+                    </div>
+                    <!-- Tab Content -->
+                    <div class="py-6" id="tab-content">
+                        <div id="epic1" class="tab-pane">
+                            <h4 class="text-xl font-bold text-white mb-1">EPIC 1: Ingesta y Estructura de Datos</h4>
+                            <p class="text-slate-400 mb-4 text-sm">Objetivo: Crear la base de datos central y poblarla con la información histórica.</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead><tr class="border-b border-slate-800 text-slate-400 text-xs uppercase"><th class="p-3">Historia de Usuario / Tarea</th><th class="p-3 text-right">Puntos</th></tr></thead>
+                                    <tbody>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 1.1: Ingesta y Mapeo de Datos Históricos</td><td class="p-3 text-right font-semibold text-white">32</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 1.1.1: Análisis de la fuente de datos históricos</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 1.1.2: Desarrollo de script/escenario de ingesta</td><td class="p-3 text-right text-slate-300">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 1.1.3: Proceso de validación y limpieza de datos</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="epic2" class="tab-pane hidden">
+                            <h4 class="text-xl font-bold text-white mb-1">EPIC 2: Proceso de Solicitud y Evaluación (HASE)</h4>
+                            <p class="text-slate-400 mb-4 text-sm">Objetivo: Desarrollar el funnel de adquisición digital para nuevos solicitantes.</p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead><tr class="border-b border-slate-800 text-slate-400 text-xs uppercase"><th class="p-3">Historia de Usuario / Tarea</th><th class="p-3 text-right">Puntos</th></tr></thead>
+                                    <tbody>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 2.1: Crear formulario de solicitud</td><td class="p-3 text-right font-semibold text-white">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.1.1: Diseño y maquetación del formulario</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.1.2: Configuración del webhook y pruebas</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 2.2: Automatizar enriquecimiento de datos</td><td class="p-3 text-right font-semibold text-white">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.2.1: Diseño de la BD "Solicitudes" en Airtable</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.2.2: Escenario Make.com y conexión API buró</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.2.3: Lógica de guardado y manejo de errores</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 2.3: Crear Dashboard de Evaluación</td><td class="p-3 text-right font-semibold text-white">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.3.1: Diseño de Interfaz en Airtable</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 2.3.2: Configurar campos de subida y estados</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="epic3" class="tab-pane hidden">
+                            <h4 class="text-xl font-bold text-white mb-1">EPIC 3: Integración con Ecosistema de Pagos</h4>
+                            <p class="text-slate-400 mb-4 text-sm">Objetivo: Automatizar la conciliación de pagos, el corazón del modelo de negocio.</p>
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead><tr class="border-b border-slate-800 text-slate-400 text-xs uppercase"><th class="p-3">Historia de Usuario / Tarea</th><th class="p-3 text-right">Puntos</th></tr></thead>
+                                    <tbody>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 3.1: Integrar con APIs de Estaciones GNV</td><td class="p-3 text-right font-semibold text-white">40</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.1.1: Investigación técnica y credenciales GNV</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.1.2: Desarrollo de conector en Make.com</td><td class="p-3 text-right text-slate-300">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.1.3: Lógica para registrar cargas y recaudo</td><td class="p-3 text-right text-slate-300">12</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.1.4: Monitor de estado de conexión GNV</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 3.2: Integrar con STP para pago remanente</td><td class="p-3 text-right font-semibold text-white">40</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.2.1: Investigación y configuración STP</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.2.2: Webhook listener para notificaciones STP</td><td class="p-3 text-right text-slate-300">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.2.3: Lógica de conciliación de cuotas</td><td class="p-3 text-right text-slate-300">12</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 3.2.4: Manejo de errores de pago</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="epic4" class="tab-pane hidden">
+                            <h4 class="text-xl font-bold text-white mb-1">EPIC 4: Monitoreo y Alerta Temprana (PIA)</h4>
+                            <p class="text-slate-400 mb-4 text-sm">Objetivo: Construir la capa de inteligencia y proactividad sobre los datos operativos.</p>
+                            <div class="overflow-x-auto">
+                                 <table class="w-full text-left">
+                                    <thead><tr class="border-b border-slate-800 text-slate-400 text-xs uppercase"><th class="p-3">Historia de Usuario / Tarea</th><th class="p-3 text-right">Puntos</th></tr></thead>
+                                    <tbody>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 4.1: Implementar motor de alertas proactivas</td><td class="p-3 text-right font-semibold text-white">24</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.1.1: Implementar lógica de negocio para triggers</td><td class="p-3 text-right text-slate-300">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.1.2: Configurar y probar envío de alertas</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.1.3: Desarrollar un "log de alertas" en Airtable</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr class="border-b border-slate-800"><td class="p-3 font-semibold text-white">HU 4.2: Crear Dashboard de "Salud del Cliente"</td><td class="p-3 text-right font-semibold text-white">16</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.2.1: Diseño de Interfaz en Airtable</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.2.2: Implementar lógica de "Estado de Salud"</td><td class="p-3 text-right text-slate-300">8</td></tr>
+                                        <tr><td class="p-3 pl-8 text-slate-300">Tarea 4.2.3: Configurar registro de intervenciones</td><td class="p-3 text-right text-slate-300">4</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cronograma Section -->
+            <section id="cronograma" class="fade-in-section mb-16">
+                <h3 class="text-3xl font-bold text-white mb-6">🗓️ Cronograma por Sprints</h3>
+                <div class="card p-6">
+                    <p class="text-slate-400 text-sm mb-4">Plan de 10 semanas de desarrollo y 2 de lanzamiento. Capacidad estimada: 40 puntos por sprint.</p>
+                    <div class="h-96"><canvas id="ganttChart"></canvas></div>
+                </div>
+                <div class="mt-8">
+                    <h4 class="text-xl font-bold text-white mb-4">Desglose de Tareas por Sprint</h4>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="card p-4">
+                            <h5 class="font-bold text-sky-400">Sprint 1 (Semanas 1-2)</h5>
+                            <p class="text-sm text-slate-400">Foco: Fundación y Descubrimiento.</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">1.1.1</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">1.1.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">1.1.3</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.1.1</span>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <h5 class="font-bold text-sky-400">Sprint 2 (Semanas 3-4)</h5>
+                            <p class="text-sm text-slate-400">Foco: Funnel de Adquisición (HASE).</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.1.1</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.1.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.2.1</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.2.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.2.3</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.3.1</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">2.3.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.2.1</span>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <h5 class="font-bold text-sky-400">Sprint 3 (Semanas 5-6)</h5>
+                            <p class="text-sm text-slate-400">Foco: Core de Conectores de Pago.</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.1.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.2.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.2.1</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.2.3</span>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <h5 class="font-bold text-sky-400">Sprint 4 (Semanas 7-8)</h5>
+                            <p class="text-sm text-slate-400">Foco: Cierre Lógica de Pagos y Alertas.</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.1.3</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.2.3</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.1.1</span>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <h5 class="font-bold text-sky-400">Sprint 5 (Semanas 9-10)</h5>
+                            <p class="text-sm text-slate-400">Foco: Capa de Inteligencia (PIA) y Cierre.</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.1.4</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">3.2.4</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.1.2</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.1.3</span>
+                                <span class="bg-slate-800 text-xs font-mono p-1 px-2 rounded">4.2.2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Equipo y Riesgos Section -->
+            <section id="equipo" class="fade-in-section mb-16">
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-3xl font-bold text-white mb-6">👨‍💻 Equipo y Stack</h3>
+                        <div class="card p-6">
+                            <h4 class="font-bold text-xl text-white mb-4">Equipo del MVP</h4>
+                            <ul class="space-y-3 text-slate-300">
+                                <li><strong class="text-white">Product Manager (Tú):</strong> Visión, backlog, stakeholders.</li>
+                                <li><strong class="text-white">Tech Lead (1):</strong> Arquitectura, supervisión técnica.</li>
+                                <li><strong class="text-white">Jr. No-Code Developer (2):</strong> Construcción de flujos y configuración.</li>
+                            </ul>
+                            <hr class="border-slate-800 my-6">
+                            <h4 class="font-bold text-xl text-white mb-4">Arquitectura y Stack</h4>
+                             <ul class="space-y-3 text-slate-300">
+                                <li><strong class="text-white">Automatización:</strong> Make.com / n8n</li>
+                                <li><strong class="text-white">Base de Datos / Back-office:</strong> Airtable</li>
+                                <li><strong class="text-white">Comunicaciones:</strong> Google Chat</li>
+                                <li><strong class="text-white">Pagos:</strong> APIs de STP y GNV</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-white mb-6">⚠️ Riesgos y Dependencias</h3>
+                        <div class="card p-6">
+                            <ul class="space-y-4 text-slate-300">
+                               <li><strong class="text-white">Dependencia de Terceros (GNV y STP):</strong> El cronograma depende de la disponibilidad y calidad de las APIs de los aliados. <br><span class="text-sky-400 text-sm">Mitigación: Iniciar contacto y pruebas en sandbox desde la semana 0.</span></li>
+                               <li><strong class="text-white">Calidad de Datos Históricos:</strong> El esfuerzo para la Épica 1 puede variar. <br><span class="text-sky-400 text-sm">Mitigación: Realizar análisis de datos al inicio para ajustar el plan si es necesario.</span></li>
+                               <li><strong class="text-white">Curva de Aprendizaje del Equipo Jr.:</strong> La velocidad puede ser menor al inicio. <br><span class="text-sky-400 text-sm">Mitigación: Supervisión cercana del Tech Lead y desglose detallado de tareas.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer class="border-t border-slate-800 mt-16 py-8">
+            <p class="text-center text-sm text-slate-500">© 2025 Conductores: Rodando a Gas - Plan de MVP</p>
+        </footer>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const accessPortal = document.getElementById('access-portal');
+        const mainContent = document.getElementById('main-content');
+        const passwordInput = document.getElementById('password-input');
+        const submitButton = document.getElementById('submit-password');
+        const errorMessage = document.getElementById('error-message');
+        const correctPassword = 'rag2025';
+
+        function checkPassword() {
+            if (passwordInput.value === correctPassword) {
+                errorMessage.textContent = '';
+                accessPortal.style.opacity = '0';
+                setTimeout(() => {
+                    accessPortal.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    document.body.style.overflow = 'auto';
+                    initializeMainContent();
+                }, 500);
+            } else {
+                errorMessage.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
+                passwordInput.classList.add('shake');
+                passwordInput.value = '';
+                setTimeout(() => {
+                    passwordInput.classList.remove('shake');
+                }, 820);
+            }
+        }
+
+        submitButton.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function initializeMainContent() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetPane = document.getElementById(tab.dataset.tab);
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    panes.forEach(p => p.classList.add('hidden'));
+                    targetPane.classList.remove('hidden');
+                });
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-section').forEach(section => {
+                observer.observe(section);
+            });
+            
+            const navLinks = document.querySelectorAll('header a[href^="#"]');
+            const header = document.querySelector('header');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if(targetElement) {
+                        const headerOffset = header.offsetHeight + 24;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth"
+                        });
+                    }
+                });
+            });
+
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#cbd5e1', 
+                            font: { family: "'Inter', sans-serif" }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b', 
+                        titleColor: '#f1f5f9', 
+                        bodyColor: '#cbd5e1', 
+                        boxPadding: 8,
+                        cornerRadius: 4,
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(51, 65, 85, 0.5)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(51, 65, 85, 0.5)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            };
+
+            const pointsCtx = document.getElementById('pointsChart')?.getContext('2d');
+            if (pointsCtx) {
+                new Chart(pointsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['EPIC 1: Fundación', 'EPIC 2: HASE', 'EPIC 3: Pagos', 'EPIC 4: PIA'],
+                        datasets: [{
+                            label: 'Puntos de Historia',
+                            data: [32, 32, 80, 40],
+                            backgroundColor: ['#0ea5e9', '#0891b2', '#0e7490', '#0369a1'],
+                            borderColor: '#020617',
+                            borderWidth: 4,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: { ...commonChartOptions }
+                });
+            }
+            
+            const ganttCtx = document.getElementById('ganttChart')?.getContext('2d');
+            if (ganttCtx) {
+                new Chart(ganttCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['EPIC 1: Fundación', 'EPIC 2: HASE', 'EPIC 3: Pagos', 'EPIC 4: PIA'],
+                        datasets: [
+                            { label: 'Sprint 1', data: [32, 0, 8, 0], backgroundColor: '#0369a1' },
+                            { label: 'Sprint 2', data: [0, 32, 8, 0], backgroundColor: '#0e7490' },
+                            { label: 'Sprint 3', data: [0, 0, 32, 8], backgroundColor: '#0891b2' },
+                            { label: 'Sprint 4', data: [0, 0, 24, 16], backgroundColor: '#0ea5e9' },
+                            { label: 'Sprint 5', data: [0, 0, 8, 16], backgroundColor: '#22d3ee' },
+                        ]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                        indexAxis: 'y',
+                        scales: {
+                            x: { stacked: true, grid: { color: 'rgba(51, 65, 85, 0.5)' }, ticks: { color: '#94a3b8', callback: (v) => v + ' pts' } },
+                            y: { stacked: true, grid: { display: false }, ticks: { color: '#cbd5e1' } }
+                        },
+                        plugins: {
+                            ...commonChartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null && context.parsed.x > 0) {
+                                            label += context.parsed.x + ' Puntos';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+    </script>
+
+</body>
+</html>
