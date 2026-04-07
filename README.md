@@ -101,7 +101,7 @@
 
 ## 💡 What vibe-coding means to me
 
-Vibe-coding isn't about skipping the hard parts — it's about compressing time-to-value. I use AI as a force multiplier: I own the product thinking, architecture decisions, and quality bar. The AI accelerates execution. The result is production-grade software — with tests, security hardening, and real users — shipped by one person with product instincts and zero excuses.
+Vibe-coding is a catalyst, not a replacement. It helps compress time-to-value and lets product people get closer to the code than ever before. But it has limits. Complex systems, edge cases, and production-grade reliability still require software engineers. The way I see it: vibe-coding gives me enough range to prototype, validate, and ship tools on my own and a much better vocabulary to collaborate with engineering teams on the hard stuff.
 
 ---
 
