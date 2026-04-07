@@ -7,8 +7,8 @@
 
 <p align="center">
   <a href="https://www.pxblx.com"><img src="https://img.shields.io/badge/Portfolio-pxblx.com-6366f1?style=flat-square&logo=safari&logoColor=white"/></a>
-  <a href="https://www.linkedin.com/in/pablo-arroyo-pm"><img src="https://img.shields.io/badge/LinkedIn-Pablo_Arroyo-0077B5?style=flat-square&logo=linkedin&logoColor=white"/></a>
-  <img src="https://img.shields.io/badge/Location-Mexico_City-22c55e?style=flat-square&logo=googlemaps&logoColor=white"/>
+  <a href="https://www.linkedin.com/in/pablo-estéfano-arroyo-garrido"><img src="https://img.shields.io/badge/LinkedIn-Pablo_Arroyo-0077B5?style=flat-square&logo=linkedin&logoColor=white"/></a>
+  <img src="https://img.shields.io/badge/Location-Querétaro,_Mexico-22c55e?style=flat-square&logo=googlemaps&logoColor=white"/>
   <img src="https://img.shields.io/badge/Role-Technology_PM_%40_Zebrands-f59e0b?style=flat-square"/>
 </p>
 
