@@ -12,15 +12,15 @@
   <img src="https://img.shields.io/badge/Role-Technology_PM_%40_Zebrands-f59e0b?style=flat-square"/>
 </p>
 
-<br/>
+---
 
 ## What I do
 
 | 🏗️ Build | 🚀 Ship | 🎓 Teach |
-|<br/>|<br/>|<br/>|
+|---|---|---|
 | AI-powered products with real business impact | Production apps with unit + E2E test coverage, deployed on Vercel | Agile methodologies at Tecnológico de Monterrey |
 
-<br/>
+---
 
 ## 🤖 Featured Projects
 
@@ -36,7 +36,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=flat-square&logo=google&logoColor=white)
 
-<br/>
+---
 
 ### 🛠️ [i-love-data-tools](https://github.com/Pxblx7/i-love-data-tools) — Privacy-First Browser Data Tools
 > 4 client-side tools: JSON editor, CSV↔JSON converter, JSON flattener, and PII scrubber. Zero server. Zero ads. Your data never leaves your browser.
@@ -50,7 +50,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
 
-<br/>
+---
 
 ### 🖼️ [Zebrands Image Converter](https://github.com/Pxblx7/zebrands-image-converter) — Internal Tool, Built in < 2 Hours
 > A case study in AI-PM collaboration: identified a real business need, prototyped with Google Gemini, refined with V0 — shipped without engineering resources.
@@ -62,7 +62,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=black)
 
-<br/>
+---
 
 ### 👤 [pablo-arroyo-product-manager](https://github.com/Pxblx7/pablo-arroyo-product-manager) — Interactive Portfolio
 > Portfolio built with Astro, GSAP animations, and full i18n support.
@@ -70,7 +70,7 @@
 ![Astro](https://img.shields.io/badge/Astro-FF5D01?style=flat-square&logo=astro&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=black)
 
-<br/>
+---
 
 ## 📊 By the numbers
 
@@ -83,7 +83,7 @@
   </tr>
 </table>
 
-<br/>
+---
 
 ## 🧰 Stack I ship with
 
@@ -97,13 +97,13 @@
 ![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)
 
-<br/>
+---
 
 ## 💡 What vibe-coding means to me
 
-Vibe-coding is a catalyst, not a replacement. It helps compress time-to-value and lets product people get closer to the code than ever before. But it has limits. Complex systems, edge cases, and production-grade reliability still require software engineers. The way I see it: vibe-coding gives me enough range to prototype, validate, and ship simple tools on my own — and a much better vocabulary to collaborate with engineering teams on the hard stuff.
+Vibe-coding isn't about skipping the hard parts — it's about compressing time-to-value. I use AI as a force multiplier: I own the product thinking, architecture decisions, and quality bar. The AI accelerates execution. The result is production-grade software — with tests, security hardening, and real users — shipped by one person with product instincts and zero excuses.
 
-<br/>
+---
 
 <p align="center">
   <a href="https://ko-fi.com/pabloarroyo">
