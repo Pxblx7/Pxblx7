@@ -27,9 +27,9 @@
 ### 🏦 [Mi Retiro MX](https://github.com/Pxblx7/retirement-calc-lite) — Retirement Simulator for Mexico
 > Personal finance tool projecting AFORE + PPR + private savings, with AI-powered insights via Google Gemini.
 
-- Bilingual (ES/EN), dark mode, side-by-side scenario comparison
-- Supabase passwordless auth, PDF export, bilingual blog + financial glossary
-- Full test suite: Vitest unit + Playwright E2E
+- Models AFORE + PPR + Private Savings with Mexico's Ley 97 legal logic — early retirement penalties, payout ages, ISR warnings
+- AI Goal Tracker: set a target pension → Gemini calculates the savings gap and pre-fills your plan in one click
+- Save and compare up to 3 scenarios with cloud sync (Supabase) · passwordless magic link auth · PDF export
 
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
@@ -41,9 +41,9 @@
 ### 🛠️ [i-love-data-tools](https://github.com/Pxblx7/i-love-data-tools) — Privacy-First Browser Data Tools
 > 4 client-side tools: JSON editor, CSV↔JSON converter, JSON flattener, and PII scrubber. Zero server. Zero ads. Your data never leaves your browser.
 
-- 27 Playwright E2E tests · 66 Vitest unit tests · 100% static export
-- Security-hardened CSP headers, prototype pollution protection, ReDoS guards
-- Deployed: [i-love-data-tools.vercel.app](https://i-love-data-tools.vercel.app)
+- 100% client-side — your data never leaves the browser, no server, no ads, works offline
+- JSON editor (CodeMirror 6) with real-time lint + tree view · CSV↔JSON with auto-delimiter detection + live row preview
+- PII scrubber detects emails, Luhn-validated credit cards, US/MX phone numbers, and IPs — redacts or highlights in place
 
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
@@ -55,8 +55,8 @@
 ### 🖼️ [Zebrands Image Converter](https://github.com/Pxblx7/zebrands-image-converter) — Internal Tool, Built in < 2 Hours
 > A case study in AI-PM collaboration: identified a real business need, prototyped with Google Gemini, refined with V0 — shipped without engineering resources.
 
-- Replaced paid tools with a free internal solution
-- Animated UI with GSAP scroll effects
+- Batch-converts images to WebP via ZIP upload (up to 100MB) with a real-time savings dashboard showing MB reduced
+- Password-protected internal access · replaced a paid SaaS subscription with zero engineering resources
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
@@ -66,6 +66,9 @@
 
 ### 👤 [pablo-arroyo-product-manager](https://github.com/Pxblx7/pablo-arroyo-product-manager) — Interactive Portfolio
 > Portfolio built with Astro, GSAP animations, and full i18n support.
+
+- Interactive CV styled as a player card: GSAP scroll animations, radar skill chart, and career timeline
+- Bilingual (ES/EN) with PostHog analytics tracking contact, language switch, and CV download events
 
 ![Astro](https://img.shields.io/badge/Astro-FF5D01?style=flat-square&logo=astro&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=black)
