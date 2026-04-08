@@ -28,7 +28,8 @@
 > Personal finance tool projecting AFORE + PPR + private savings, with AI-powered insights via Google Gemini.
 
 - Models AFORE + PPR + Private Savings with Mexico's Ley 97 legal logic — early retirement penalties, payout ages, ISR warnings
-- AI Goal Tracker: set a target pension → Gemini calculates the savings gap and pre-fills your plan in one click
+- Goal Tracker: set a target pension → auto-calculates the savings gap and pre-fills your plan in one click
+- Google Gemini generates 3 personalized, NPV-expressed recommendations — bilingual, with impact labels (High/Medium/Low)
 - Save and compare up to 3 scenarios with cloud sync (Supabase) · passwordless magic link auth · PDF export
 
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js)
