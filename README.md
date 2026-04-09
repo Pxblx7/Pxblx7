@@ -80,7 +80,7 @@
 
 <table>
   <tr>
-    <td align="center"><strong>$2.3M+</strong><br/>business value delivered</td>
+    <td align="center"><strong>$2.5M+</strong><br/>business value delivered</td>
     <td align="center"><strong>15+</strong><br/>annual projects led</td>
     <td align="center"><strong>8+</strong><br/>years in product & tech</td>
     <td align="center"><strong>90%</strong><br/>student adoption rate</td>
